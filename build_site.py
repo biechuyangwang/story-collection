@@ -26,6 +26,10 @@ CATS = [
     {"id": "节日故事", "icon": "🎉", "name": "节日故事",
      "desc": "应景故事包：春节 / 小年 / 元宵 / 清明 / 端午 / 七夕 / 中秋 / 重阳 / 冬至 / 腊八",
      "subs": ["春节", "小年", "元宵", "清明", "端午", "七夕", "中秋", "重阳", "冬至", "腊八"]},
+    {"id": "科幻故事", "icon": "🚀", "name": "科幻故事",
+     "desc": "原创儿童科幻：月亮、机器人、星空与时间", "subs": []},
+    {"id": "诗词故事", "icon": "🖋️", "name": "诗词故事",
+     "desc": "经典诗词背后的故事，读诗也读人", "subs": []},
 ]
 
 ENDING_PAT = re.compile(r"\*\*(晚安小结|小启示)\*\*[：:]\s*")
@@ -82,7 +86,7 @@ def parse_file(path: Path):
                     key = mm.group(1).strip().strip("*").strip()
                     val = mm.group(2).strip().strip("*").strip()
                     if key in ("出处", "成语含义", "主题", "适读年龄", "朗读时长", "时长",
-                               "适合场景", "人物与出处", "类型", "成语出处"):
+                               "适合场景", "人物与出处", "类型", "成语出处", "诗词", "作者"):
                         meta[key] = val
         elif ln.strip() and not ln.startswith("#") and body_first is None:
             body_first = i
