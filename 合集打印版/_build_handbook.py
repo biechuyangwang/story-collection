@@ -112,7 +112,7 @@ def build():
          indent_chars=0, after=6)
     para(doc, "亲 子 朗 读 手 册", HEI, 20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER,
          indent_chars=0, after=18)
-    para(doc, "寓言 · 神话 · 童话　共 30 篇", SONG, 13,
+    para(doc, "寓言 · 神话 · 童话　共 33 篇", SONG, 13,
          align=WD_ALIGN_PARAGRAPH.CENTER, indent_chars=0, after=48, color=GRAY)
     for tip in [
         "每篇朗读约 3～5 分钟，正好在孩子入睡前讲完。",
