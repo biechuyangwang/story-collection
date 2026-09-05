@@ -20,7 +20,7 @@ GRAY = RGBColor(0x59, 0x59, 0x59)
 
 CONFIG = {
     "成语故事": {
-        "subtitle": "成语背后的经典小故事　共 15 篇",
+        "subtitle": "成语背后的经典小故事",
         "tips": [
             "每篇开头注明成语含义与典籍出处，讲完可以让孩子复述成语。",
             "结尾「小启示」是给家长的话：照着和孩子聊两句。",
@@ -29,7 +29,7 @@ CONFIG = {
         "glob": "[0-9]*.md",
     },
     "电台故事": {
-        "subtitle": "深夜电台文本　共 28 期",
+        "subtitle": "深夜电台文本",
         "tips": [
             "每期按「开播的话 → 今晚的故事 → 收音前的话」三段式排版。",
             "适合深夜 FM 式朗读：语速放慢，段落间留呼吸，可配轻钢琴或白噪音。",
@@ -38,7 +38,7 @@ CONFIG = {
         "glob": "第*.md",
     },
     "励志故事": {
-        "subtitle": "名人轶事与励志小故事　共 12 篇",
+        "subtitle": "名人轶事与励志小故事",
         "tips": [
             "涵盖中外人物与励志寓言，结尾「小启示」可读后与孩子共勉。",
             "李白、匡衡、达·芬奇、贝多芬、屠呦呦、刘伟……坚持的人各不相同。",
@@ -47,7 +47,7 @@ CONFIG = {
         "glob": "[0-9]*.md",
     },
     "科学故事": {
-        "subtitle": "科学发现与发明背后的趣味故事　共 20 篇",
+        "subtitle": "科学发现与发明背后的趣味故事",
         "tips": [
             "每篇注明人物、发现/发明与知识点，讲完可带孩子做延伸小科普。",
             "与励志故事互补：那边讲精神，这边讲科学是怎么发生的。",
@@ -177,7 +177,8 @@ def main():
     # 标题页
     para(doc, "", after=40)
     para(doc, cat, HEI, 30, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, after=6)
-    sub = cfg["subtitle"].replace("共 ", f"共 {len(files)} ")
+    unit = "期" if cat == "电台故事" else "篇"
+    sub = f"{cfg['subtitle']}　共 {len(files)} {unit}"
     para(doc, sub, HEI, 18, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, after=18)
     para(doc, "故事集 · 朗读手册", SONG, 13, align=WD_ALIGN_PARAGRAPH.CENTER,
          after=48, color=GRAY)
