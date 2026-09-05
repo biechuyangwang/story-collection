@@ -128,6 +128,8 @@ def main():
             info = parse_file(f)
             slug = f.stem
             sid = f"{cat['id']}/{slug}" if not cat["subs"] else f"{cat['id']}/{f.parent.name}/{slug}"
+            # 配音文件（存在才暴露给前端）
+            audio = ROOT / "assets" / "audio" / f"{sid}.mp3"
             stories.append({
                 "id": sid,
                 "cat": cat["id"],
@@ -141,6 +143,7 @@ def main():
                 "card": info["card"],
                 "content": info["content"],
                 "plain": info["plain"][:1200],
+                "audio": f"assets/audio/{sid}.mp3" if audio.exists() else "",
             })
             total += 1
 

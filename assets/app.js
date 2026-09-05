@@ -125,7 +125,8 @@
         var mi = [s.meta["适读年龄"], s.meta["朗读时长"] || s.meta["时长"], s.meta["出处"] || s.meta["主题"] || s.meta["成语出处"]]
           .filter(Boolean).join("　·　");
         return '<a class="story-item" href="' + storyLink(s) + '">' +
-          '<div class="t"><span class="num">' + esc(s.num) + "</span>" + esc(s.title) + "</div>" +
+          '<div class="t"><span class="num">' + esc(s.num) + "</span>" + esc(s.title) +
+          (s.audio ? ' <span class="audio-flag" title="有真人配音">🎧</span>' : "") + "</div>" +
           (mi ? '<div class="m">' + esc(mi) + "</div>" : "") +
           '<div class="e">' + esc(s.excerpt) + "</div></a>";
       }).join("") + "</div>";
@@ -160,7 +161,11 @@
     var fontBtns =
       '<button class="tool-btn" id="fs-dec">A−</button>' +
       '<button class="tool-btn" id="fs-inc">A+</button>' +
-      '<button class="tool-btn" id="tts-btn">▶ 朗读这篇</button>';
+      (s.audio ? "" : '<button class="tool-btn" id="tts-btn">▶ 朗读这篇</button>');
+    var audioBox = s.audio
+      ? '<div class="audio-box"><span class="audio-tag">🎧 有声朗读</span>' +
+        '<audio controls preload="none" src="' + encodeURI(s.audio) + '"></audio></div>'
+      : "";
 
     app.innerHTML =
       '<p class="crumb"><a href="#/">首页</a> / <a href="#/cat/' + encodeURIComponent(s.cat) + '">' +
@@ -168,6 +173,7 @@
       '<div class="story-head"><h1>' + esc(s.title) + "</h1>" +
       '<div class="meta-chips">' + chips(s.meta) + "</div></div>" +
       '<div class="story-tools">' + fontBtns + "</div>" +
+      audioBox +
       '<article class="content">' + md(s.content) + "</article>" +
       (s.ending
         ? '<div class="ending-block"><span class="label">『 ' + esc(s.endingLabel) + ' 』</span><p>' +
@@ -189,7 +195,8 @@
     setFs(fs);
     app.querySelector("#fs-inc").onclick = function () { setFs(fs + 2); };
     app.querySelector("#fs-dec").onclick = function () { setFs(fs - 2); };
-    app.querySelector("#tts-btn").onclick = function () { speak(s, this); };
+    var ttsBtn = app.querySelector("#tts-btn");
+    if (ttsBtn) ttsBtn.onclick = function () { speak(s, this); };
     window.scrollTo(0, 0);
   }
 

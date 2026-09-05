@@ -177,3 +177,14 @@ a:hover { text-decoration: underline; }
   .hero h1 { font-size: 24px; }
   .cat-grid { grid-template-columns: 1fr; }
 }
+
+/* ── 有声朗读 ── */
+.audio-box {
+  display: flex; align-items: center; gap: 12px;
+  margin: 14px 0 18px; padding: 12px 16px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--accent-soft);
+}
+.audio-tag { font-size: 13px; color: var(--accent); white-space: nowrap; font-weight: 600; }
+.audio-box audio { flex: 1; height: 36px; }
+.audio-flag { font-size: 13px; margin-left: 4px; }
