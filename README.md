@@ -93,7 +93,7 @@
 ```
 python3 build_site.py        # 扫描全部 Markdown → docs/data.json
 python3 -m http.server 8642  # 本地预览 http://localhost:8642
-git add -A && git commit -m "..." && git push
+git add -A && git commit -m 「...」 && git push
 ```
 
 推送到 `main` 后，GitHub Pages 自动重新发布（约 1 分钟生效）。前端本体是 `index.html` + `assets/`（原生 HTML/CSS/JS，无框架；marked.js 已本地化到 `assets/vendor/`）。
