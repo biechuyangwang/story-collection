@@ -188,3 +188,11 @@ a:hover { text-decoration: underline; }
 .audio-tag { font-size: 13px; color: var(--accent); white-space: nowrap; font-weight: 600; }
 .audio-box audio { flex: 1; height: 36px; }
 .audio-flag { font-size: 13px; margin-left: 4px; }
+
+/* ── 男/女声版本切换 ── */
+.ver-tabs { display: inline-flex; gap: 6px; margin-right: 4px; }
+.ver-btn {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink-soft);
+  border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer;
+}
+.ver-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }

@@ -162,10 +162,20 @@
       '<button class="tool-btn" id="fs-dec">A−</button>' +
       '<button class="tool-btn" id="fs-inc">A+</button>' +
       (s.audio ? "" : '<button class="tool-btn" id="tts-btn">▶ 朗读这篇</button>');
-    var audioBox = s.audio
-      ? '<div class="audio-box"><span class="audio-tag">🎧 有声朗读</span>' +
-        '<audio controls preload="none" src="' + encodeURI(s.audio) + '"></audio></div>'
-      : "";
+    var audioBox = "";
+    if (s.audio || s.audio_m) {
+      var hasF = !!s.audio, hasM = !!s.audio_m;
+      var tabs = "";
+      if (hasF && hasM) {
+        tabs = '<div class="ver-tabs">' +
+          '<button class="ver-btn active" data-src="' + encodeURI(s.audio) + '">♀ 女声版</button>' +
+          '<button class="ver-btn" data-src="' + encodeURI(s.audio_m) + '">♂ 男声版</button></div>';
+      }
+      var src = hasF ? s.audio : s.audio_m;
+      audioBox = '<div class="audio-box"><span class="audio-tag">🎧 有声朗读</span>' +
+        tabs + '<audio controls preload="none" id="story-audio" src="' +
+        encodeURI(src) + '"></audio></div>';
+    }
 
     app.innerHTML =
       '<p class="crumb"><a href="#/">首页</a> / <a href="#/cat/' + encodeURIComponent(s.cat) + '">' +
@@ -197,6 +207,14 @@
     app.querySelector("#fs-dec").onclick = function () { setFs(fs - 2); };
     var ttsBtn = app.querySelector("#tts-btn");
     if (ttsBtn) ttsBtn.onclick = function () { speak(s, this); };
+    app.querySelectorAll(".ver-btn").forEach(function (b) {
+      b.onclick = function () {
+        app.querySelectorAll(".ver-btn").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+        var player = app.querySelector("#story-audio");
+        if (player) { player.pause(); player.src = b.dataset.src; }
+      };
+    });
     window.scrollTo(0, 0);
   }
 
