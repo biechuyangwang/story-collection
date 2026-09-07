@@ -27,6 +27,16 @@ STORIES = [
     ("08", "呼伦贝尔草原", ["Hulunbuir grassland", "Inner Mongolia grassland"]),
     ("09", "塔克拉玛干沙漠", ["Taklamakan Desert", "Taklamakan dunes"]),
     ("10", "海南珊瑚海", ["Sanya beach Hainan", "Wuzhizhou Island Sanya"]),
+    ("11", "长白山天池", ["Changbai Mountain Heaven Lake", "Heaven Lake Changbai Shan"]),
+    ("12", "稻城亚丁", ["Daocheng Yading", "Yading Nature Reserve"]),
+    ("13", "元阳梯田", ["Yuanyang rice terraces", "Hani terraces Yuanyang"]),
+    ("14", "茶卡盐湖", ["Chaka Salt Lake", "Chaka lake Qinghai mirror"]),
+    ("15", "黄果树瀑布", ["Huangguoshu Waterfall", "Huangguoshu falls Guizhou"]),
+    ("16", "故宫", ["Forbidden City Hall of Supreme Harmony", "Forbidden City meridian gate"]),
+    ("17", "长城", ["Great Wall Mutianyu", "Jinshanling Great Wall"]),
+    ("18", "大熊猫家园", ["Giant Panda eating bamboo", "Giant Panda Sichuan forest"]),
+    ("19", "张掖丹霞", ["Zhangye Danxia", "Rainbow mountains Zhangye"]),
+    ("20", "丽江玉龙雪山", ["Jade Dragon Snow Mountain", "Lijiang old town"]),
 ]
 
 BAD = re.compile(
