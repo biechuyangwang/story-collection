@@ -39,6 +39,8 @@ CATS = [
      "desc": "经典名著儿童版：西游记、三国演义，一章一个精彩故事", "subs": ["西游记", "三国演义"]},
     {"id": "历史故事", "icon": "🏛️", "name": "历史故事",
      "desc": "上下五千年：影响中国的大事与人物，像听评书一样学历史", "subs": []},
+    {"id": "中国国家地理", "icon": "🏞️", "name": "中国国家地理",
+     "desc": "图文并茂走中国：名山大川与地理奇观背后的故事", "subs": []},
 ]
 
 ENDING_PAT = re.compile(r"\*\*(晚安小结|小启示)\*\*[：:]\s*")
@@ -96,14 +98,17 @@ def parse_file(path: Path):
                     val = mm.group(2).strip().strip("*").strip()
                     if key in ("出处", "成语含义", "主题", "适读年龄", "朗读时长", "时长",
                                "适合场景", "人物与出处", "类型", "成语出处", "诗词", "作者",
-                               "人物", "发现", "知识点", "节气", "时间"):
+                               "人物", "发现", "知识点", "节气", "时间", "位置"):
                         meta[key] = val
         elif ln.strip() and not ln.startswith("#") and body_first is None:
             body_first = i
             break
 
-    # 纯文本（摘要 / 搜索 / TTS）
-    plain = re.sub(r"[#>*`\-\|]", "", body_md)
+    # 纯文本（摘要 / 搜索 / TTS）：剔除图片语法与版权提示行，链接只留文字
+    plain = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", body_md)
+    plain = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", plain)
+    plain = re.sub(r"[#>*`\-\|]", "", plain)
+    plain = re.sub(r"\s*本篇图片来自[^，]*开放授权，署名详见\s*图片版权说明\s*", "", plain)
     plain = re.sub(r"\s+", "", plain)
     excerpt = plain[:80] + ("…" if len(plain) > 80 else "")
 

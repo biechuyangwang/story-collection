@@ -145,6 +145,14 @@ a:hover { text-decoration: underline; }
 }
 .content hr { border: none; border-top: 1px dashed var(--line); margin: 1.6em 0; }
 .content strong { color: var(--accent); }
+.content img {
+  display: block; max-width: 100%; height: auto; margin: 14px auto 4px;
+  border-radius: 12px; box-shadow: 0 4px 18px rgba(0, 0, 0, .12);
+}
+.content p > em:only-child {
+  display: block; text-align: center; color: var(--ink-soft);
+  font-size: .82em; margin: 0 0 14px;
+}
 
 .ending-block {
   margin: 26px 0; padding: 18px 22px; border-radius: 14px;
