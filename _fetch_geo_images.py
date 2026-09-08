@@ -37,6 +37,16 @@ STORIES = [
     ("18", "大熊猫家园", ["Giant Panda eating bamboo", "Giant Panda Sichuan forest"]),
     ("19", "张掖丹霞", ["Zhangye Danxia", "Rainbow mountains Zhangye"]),
     ("20", "丽江玉龙雪山", ["Jade Dragon Snow Mountain", "Lijiang old town"]),
+    ("21", "泰山", ["Mount Tai summit", "Taishan Shandong sunrise"]),
+    ("22", "杭州西湖", ["West Lake Hangzhou pagoda", "West Lake Hangzhou scenery"]),
+    ("23", "青海湖", ["Qinghai Lake", "Qinghai Lake birds island"]),
+    ("24", "喀纳斯", ["Kanas Lake Xinjiang", "Kanas river bend"]),
+    ("25", "神农架", ["Shennongjia forest", "Shennongjia mountains"]),
+    ("26", "峨眉山乐山大佛", ["Mount Emei sea of clouds", "Leshan Giant Buddha"]),
+    ("27", "布达拉宫", ["Potala Palace Lhasa", "Potala Palace night"]),
+    ("28", "西双版纳", ["Xishuangbanna rainforest", "Xishuangbanna Dai temple"]),
+    ("29", "黄土高原", ["Loess Plateau terraces", "Yaodong cave dwelling loess"]),
+    ("30", "洱海苍山", ["Erhai Lake Dali", "Cangshan mountain Dali"]),
 ]
 
 BAD = re.compile(
