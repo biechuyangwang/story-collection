@@ -67,6 +67,16 @@ STORIES = [
     ("48", "西递宏村", ["Hongcun village Anhui", "Xidi village Anhui"]),
     ("49", "坎儿井", ["Karez Xinjiang", "Turpan karez well"]),
     ("50", "平遥古城", ["Pingyao ancient city", "Pingyao city wall"]),
+    ("51", "华山", ["Mount Hua Huashan", "Huashan plank walk"]),
+    ("52", "武夷山", ["Wuyi Mountains", "Wuyishan bamboo raft"]),
+    ("53", "苏州园林", ["Humble Administrator's Garden", "Lingering Garden Suzhou"]),
+    ("54", "曲阜三孔", ["Temple of Confucius Qufu", "Qufu Confucius cemetery"]),
+    ("55", "承德避暑山庄", ["Chengde Mountain Resort", "Putuo Zongcheng Temple Chengde"]),
+    ("56", "云冈石窟", ["Yungang Grottoes", "Yungang Grottoes Buddha"]),
+    ("57", "大足石刻", ["Dazu Rock Carvings", "Dazu Baodingshan"]),
+    ("58", "秦岭", ["Qinling Mountains", "Crested ibis Yangxian"]),
+    ("59", "鄱阳湖", ["Poyang Lake", "Poyang Lake migratory birds"]),
+    ("60", "港珠澳大桥", ["Hong Kong Zhuhai Macau Bridge", "HZMB bridge sea"]),
 ]
 
 BAD = re.compile(
