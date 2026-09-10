@@ -77,6 +77,16 @@ STORIES = [
     ("58", "秦岭", ["Qinling Mountains", "Crested ibis Yangxian"]),
     ("59", "鄱阳湖", ["Poyang Lake", "Poyang Lake migratory birds"]),
     ("60", "港珠澳大桥", ["Hong Kong Zhuhai Macau Bridge", "HZMB bridge sea"]),
+    ("61", "五台山", ["Mount Wutai", "Wutai Monastery"]),
+    ("62", "三清山", ["Mount Sanqing", "Sanqingshan granite"]),
+    ("63", "阿尔山", ["Arxan Inner Mongolia", "Arxan volcano lake"]),
+    ("64", "沙坡头", ["Shapotou Ningxia", "Shapotou desert straw"]),
+    ("65", "腾冲和顺", ["Tengchong hot springs", "Heshun village Tengchong"]),
+    ("66", "武当山", ["Wudang Mountains", "Wudang Golden Palace"]),
+    ("67", "喀什老城", ["Kashgar old town", "Id Kah Mosque Kashgar"]),
+    ("68", "西沙群岛", ["Paracel Islands", "Xisha Islands China"]),
+    ("69", "井冈山", ["Jinggangshan", "Jinggangshan mountains scenery"]),
+    ("70", "延安宝塔山", ["Yanan Pagoda Hill", "Yan'an Baotashan"]),
 ]
 
 BAD = re.compile(
@@ -148,43 +158,50 @@ def strip(text):
     return text.strip().strip('"').replace("|", "／")[:80]
 
 
-credits = []
-seen_titles = set()
-for c in (json.loads((OUT / "credits.json").read_text(encoding="utf-8"))
-          if (OUT / "credits.json").exists() else []):
-    credits.append(c)
-    seen_titles.add(c["title"][:50])
-for num, title, terms in STORIES:
-    got = len([f for f in ("geo{}a.jpg", "geo{}b.jpg") if (OUT / f.format(num)).exists()])
-    for ti, term in enumerate(terms):
-        if got >= 2:
-            break
-        letter = "ab"[got]
-        fname = f"geo{num}{letter}.jpg"
-        if (OUT / fname).exists():
-            continue
-        try:
-            data = api_search(term)
-        except Exception as e:
-            print(f"[{num}] 搜索失败 {term}: {e}")
-            continue
-        for c in pick(data):
-            if c["title"][:50] in seen_titles:
-                continue
-            if download(c["thumb"], OUT / fname):
-                got += 1
-                seen_titles.add(c["title"][:50])
-                credits.append({"file": fname, "story": f"{num}-{title}",
-                                "title": strip(c["title"]), "artist": strip(c["artist"]),
-                                "license": strip(c["license"]), "url": c["descurl"]})
-                print(f"[{num}] {fname} <- {c['title'][:50]} ({c['license']})")
-                break
-            else:
-                (OUT / fname).unlink(missing_ok=True)
-        time.sleep(2.5)
-    if got < 2:
-        print(f"!! [{num}-{title}] 仅获 {got} 张")
 
-(ROOT / "assets" / "images" / "geo" / "credits.json").write_text(
-    json.dumps(credits, ensure_ascii=False, indent=1), encoding="utf-8")
-print(f"\n共下载 {len(credits)} 张，credits.json 已写入")
+def main():
+    credits = []
+    seen_titles = set()
+    for c in (json.loads((OUT / "credits.json").read_text(encoding="utf-8"))
+              if (OUT / "credits.json").exists() else []):
+        credits.append(c)
+        seen_titles.add(c["title"][:50])
+    for num, title, terms in STORIES:
+        got = len([f for f in ("geo{}a.jpg", "geo{}b.jpg") if (OUT / f.format(num)).exists()])
+        for ti, term in enumerate(terms):
+            if got >= 2:
+                break
+            letter = "ab"[got]
+            fname = f"geo{num}{letter}.jpg"
+            if (OUT / fname).exists():
+                continue
+            try:
+                data = api_search(term)
+            except Exception as e:
+                print(f"[{num}] 搜索失败 {term}: {e}")
+                continue
+            for c in pick(data):
+                if c["title"][:50] in seen_titles:
+                    continue
+                if download(c["thumb"], OUT / fname):
+                    got += 1
+                    seen_titles.add(c["title"][:50])
+                    credits.append({"file": fname, "story": f"{num}-{title}",
+                                    "title": strip(c["title"]), "artist": strip(c["artist"]),
+                                    "license": strip(c["license"]), "url": c["descurl"]})
+                    print(f"[{num}] {fname} <- {c['title'][:50]} ({c['license']})")
+                    break
+                else:
+                    (OUT / fname).unlink(missing_ok=True)
+            time.sleep(2.5)
+        if got < 2:
+            print(f"!! [{num}-{title}] 仅获 {got} 张")
+
+    (ROOT / "assets" / "images" / "geo" / "credits.json").write_text(
+        json.dumps(credits, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"\n共下载 {len(credits)} 张，credits.json 已写入")
+
+
+
+if __name__ == "__main__":
+    main()
