@@ -87,6 +87,16 @@ STORIES = [
     ("68", "西沙群岛", ["Paracel Islands", "Xisha Islands China"]),
     ("69", "井冈山", ["Jinggangshan", "Jinggangshan mountains scenery"]),
     ("70", "延安宝塔山", ["Yanan Pagoda Hill", "Yan'an Baotashan"]),
+    ("71", "恒山", ["Mount Heng Shanxi", "Hengshan Hanging Temple"]),
+    ("72", "嵩山少林寺", ["Shaolin Temple", "Mount Song Shaolin"]),
+    ("73", "普陀山", ["Mount Putuo", "Putuoshan island China"]),
+    ("74", "九华山", ["Mount Jiuhua", "Jiuhuashan temple"]),
+    ("75", "漠河北极村", ["Beiji village Mohe", "Mohe northernmost China"]),
+    ("76", "乌镇", ["Wuzhen water town", "Wuzhen night"]),
+    ("77", "湄洲岛", ["Meizhou Island", "Mazu temple Meizhou island"]),
+    ("78", "殷墟", ["Yinxu Anyang", "Yinxu oracle bone pit"]),
+    ("79", "兵马俑", ["Terracotta Army Xi'an", "Terracotta Army pit 1"]),
+    ("80", "成吉思汗陵", ["Mausoleum of Genghis Khan", "Genghis Khan Mausoleum Ordos"]),
 ]
 
 BAD = re.compile(
