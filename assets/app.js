@@ -233,19 +233,37 @@
   }
 
   /* ---------- 搜索 ---------- */
+  // 全文索引单独成文件，首次搜索时才加载；加载完成前先用标题/摘要顶上
+  var searchIndex = null, searchIndexLoading = false;
   function renderSearch(q) {
     q = (q || "").trim();
     document.title = "搜索：" + q + " · 故事集";
-    var res = q
-      ? DATA.stories.filter(function (s) {
-          return (s.title + s.excerpt +
-            Object.keys(s.meta).map(function (k) { return s.meta[k]; }).join("")).indexOf(q) > -1;
-        })
-      : [];
+    var res, note = "";
+    if (searchIndex) {
+      res = q
+        ? searchIndex.filter(function (row) { return row.t.indexOf(q) > -1; })
+            .map(function (row) { return byId(row.id); }).filter(Boolean)
+        : [];
+    } else {
+      res = q
+        ? DATA.stories.filter(function (s) {
+            return (s.title + s.excerpt +
+              Object.keys(s.meta).map(function (k) { return s.meta[k]; }).join("")).indexOf(q) > -1;
+          })
+        : [];
+      note = '<p class="section-desc" style="color:var(--ink-soft)">正在加载全文索引…加载完成后会自动补全正文匹配的结果</p>';
+      if (!searchIndexLoading) {
+        searchIndexLoading = true;
+        fetch("docs/search.json")
+          .then(function (r) { return r.json(); })
+          .then(function (idx) { searchIndex = idx; searchIndexLoading = false; renderSearch(q); })
+          .catch(function () { searchIndexLoading = false; });
+      }
+    }
     app.innerHTML =
       '<p class="crumb"><a href="#/">首页</a> / 搜索</p>' +
-      '<h2 class="section-title">🔍 “' + esc(q) + '”</h2>' +
-      '<p class="section-desc">找到 ' + res.length + ' 篇</p>' +
+      '<h2 class="section-title">🔍 “' + esc(q) + "”</h2>" +
+      '<p class="section-desc">找到 ' + res.length + " 篇</p>" + note +
       (res.length
         ? '<div class="story-list">' + res.map(function (s) {
             return '<a class="story-item" href="' + storyLink(s) + '">' +

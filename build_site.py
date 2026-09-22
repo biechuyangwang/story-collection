@@ -142,6 +142,7 @@ def parse_file(path: Path):
 
 def main():
     stories = []
+    search_rows = []
     total = 0
     for cat in CATS:
         base = ROOT / cat["id"]
@@ -177,6 +178,10 @@ def main():
                 "audio": audio_path,
                 "audio_m": f"assets/audio/{sid}_m.mp3" if audio_m.exists() else "",
             })
+            search_rows.append({
+                "id": sid,
+                "t": info["title"] + "".join(info["meta"].values()) + info["plain"],
+            })
             # 正文按需加载：每篇单独一个小 JSON，首屏只拉轻量列表
             detail_path = ROOT / "docs" / "story" / f"{sid}.json"
             detail_path.parent.mkdir(parents=True, exist_ok=True)
@@ -198,7 +203,12 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")),
                    encoding="utf-8")
-    print(f"OK 生成 {OUT}（共 {total} 篇，{OUT.stat().st_size // 1024} KB）")
+    # 全文搜索索引：单独文件，前端首次搜索时才懒加载
+    search_out = OUT.parent / "search.json"
+    search_out.write_text(json.dumps(search_rows, ensure_ascii=False, separators=(",", ":")),
+                          encoding="utf-8")
+    print(f"OK 生成 {OUT}（共 {total} 篇，{OUT.stat().st_size // 1024} KB）"
+          f" + {search_out.name}（{search_out.stat().st_size // 1024} KB）")
 
 
 if __name__ == "__main__":
