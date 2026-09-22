@@ -52,7 +52,7 @@
     if (!window.speechSynthesis) { btn.textContent = "浏览器不支持朗读"; return; }
     if (speaking === story.id) { stopSpeak(); btn.textContent = "▶ 朗读这篇"; return; }
     stopSpeak();
-    var u = new SpeechSynthesisUtterance(story.title + "。" + story.plain);
+    var u = new SpeechSynthesisUtterance(story.title + "。" + (story._plain || ""));
     u.lang = "zh-CN"; u.rate = 0.85;
     u.onend = function () { speaking = null; btn.textContent = "▶ 朗读这篇"; };
     speaking = story.id;
@@ -184,16 +184,31 @@
       '<div class="meta-chips">' + chips(s.meta) + "</div></div>" +
       '<div class="story-tools">' + fontBtns + "</div>" +
       audioBox +
-      '<article class="content">' + md(s.content) + "</article>" +
-      (s.ending
-        ? '<div class="ending-block"><span class="label">『 ' + esc(s.endingLabel) + ' 』</span><p>' +
-          esc(s.ending) + "</p></div>"
-        : "") +
-      (s.card ? '<div class="card-block">' + esc(s.card.replace(/^> /gm, "")) + "</div>" : "") +
+      '<article class="content"><p class="section-desc">正文加载中…</p></article>' +
       '<div class="story-nav">' +
       (prev ? '<a href="' + storyLink(prev) + '">← ' + esc(prev.title) + "</a>" : "<span></span>") +
       (next ? '<a href="' + storyLink(next) + '">' + esc(next.title) + " →</a>" : "<span></span>") +
       "</div>";
+
+    // 正文按需加载：列表页秒开，进文章页再取单篇 JSON（含正文/结尾/小启示）
+    fetch("docs/story/" + encodeURI(sid) + ".json")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!app.querySelector(".content")) return; // 用户已切走
+        app.querySelector(".content").innerHTML = md(d.content) +
+          (d.ending
+            ? '<div class="ending-block"><span class="label">『 ' + esc(d.endingLabel) + ' 』</span><p>' +
+              esc(d.ending) + "</p></div>"
+            : "") +
+          (d.card ? '<div class="card-block">' + esc(d.card.replace(/^> /gm, "")) + "</div>" : "");
+        s._plain = d.plain;
+        var ttsBtn = app.querySelector("#tts-btn");
+        if (ttsBtn) ttsBtn.onclick = function () { speak(s, this); };
+      })
+      .catch(function () {
+        if (app.querySelector(".content"))
+          app.querySelector(".content").innerHTML = '<p class="section-desc">正文加载失败，请刷新重试。</p>';
+      });
 
     var fs = +(localStorage.getItem("fs") || 18);
     var contentEl = app.querySelector(".content");
@@ -205,8 +220,7 @@
     setFs(fs);
     app.querySelector("#fs-inc").onclick = function () { setFs(fs + 2); };
     app.querySelector("#fs-dec").onclick = function () { setFs(fs - 2); };
-    var ttsBtn = app.querySelector("#tts-btn");
-    if (ttsBtn) ttsBtn.onclick = function () { speak(s, this); };
+    // tts-btn 在正文 fetch 完成后绑定（需要 plain 全文）
     app.querySelectorAll(".ver-btn").forEach(function (b) {
       b.onclick = function () {
         app.querySelectorAll(".ver-btn").forEach(function (x) { x.classList.remove("active"); });
@@ -224,7 +238,7 @@
     document.title = "搜索：" + q + " · 故事集";
     var res = q
       ? DATA.stories.filter(function (s) {
-          return (s.title + s.excerpt + s.plain +
+          return (s.title + s.excerpt +
             Object.keys(s.meta).map(function (k) { return s.meta[k]; }).join("")).indexOf(q) > -1;
         })
       : [];

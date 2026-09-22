@@ -174,14 +174,19 @@ def main():
                 "title": info["title"],
                 "meta": info["meta"],
                 "excerpt": info["excerpt"],
-                "endingLabel": info["endingLabel"],
-                "ending": info["ending"],
-                "card": info["card"],
-                "content": info["content"],
-                "plain": info["plain"][:1200],
                 "audio": audio_path,
                 "audio_m": f"assets/audio/{sid}_m.mp3" if audio_m.exists() else "",
             })
+            # 正文按需加载：每篇单独一个小 JSON，首屏只拉轻量列表
+            detail_path = ROOT / "docs" / "story" / f"{sid}.json"
+            detail_path.parent.mkdir(parents=True, exist_ok=True)
+            detail_path.write_text(json.dumps({
+                "content": info["content"],
+                "plain": info["plain"],
+                "ending": info["ending"],
+                "endingLabel": info["endingLabel"],
+                "card": info["card"],
+            }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
             total += 1
 
     data = {
