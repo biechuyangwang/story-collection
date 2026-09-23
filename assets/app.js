@@ -90,13 +90,22 @@
   /* ---------- 首页 ---------- */
   function renderHome() {
     document.title = "故事集 · 寓言 · 神话 · 童话 · 电台";
-    var cats = DATA.categories.map(function (c) {
-      var n = DATA.stories.filter(function (s) { return s.cat === c.id; }).length;
-      return '<a class="cat-card" href="#/cat/' + encodeURIComponent(c.id) + '">' +
-        '<span class="icon">' + c.icon + "</span><h3>" + esc(c.name) + "</h3>" +
-        "<p>" + esc(c.desc) + "</p>" +
-        '<span class="count">' + n + " 篇</span></a>";
-    }).join("");
+    function catCards(cats) {
+      return cats.map(function (c) {
+        var n = DATA.stories.filter(function (s) { return s.cat === c.id; }).length;
+        return '<a class="cat-card" href="#/cat/' + encodeURIComponent(c.id) + '">' +
+          '<span class="icon">' + c.icon + "</span><h3>" + esc(c.name) + "</h3>" +
+          "<p>" + esc(c.desc) + "</p>" +
+          '<span class="count">' + n + " 篇</span></a>";
+      }).join("");
+    }
+    var kidCats = DATA.categories.filter(function (c) { return c.zone !== "adult"; });
+    var adultCats = DATA.categories.filter(function (c) { return c.zone === "adult"; });
+    var adultSection = adultCats.length
+      ? '<section class="adult-zone"><h2 class="section-title">🛋️ 成年人专区</h2>' +
+        '<p class="section-desc">给大人自己的内容：更深的书、更远的历史、更静的夜。</p>' +
+        '<div class="cat-grid">' + catCards(adultCats) + "</div></section>"
+      : "";
     app.innerHTML =
       '<section class="hero">' +
       '<span class="moon">🌙</span><h1>今晚想听点什么？</h1>' +
@@ -108,7 +117,8 @@
       '<a href="#/cat/' + encodeURIComponent("电台故事") + '">🎧 深夜电台</a>' +
       '<a href="#/cat/' + encodeURIComponent("节日故事") + '">🎉 节日应景</a>' +
       "</div></section>" +
-      '<section class="cat-grid">' + cats + "</section>";
+      '<section class="cat-grid">' + catCards(kidCats) + "</section>" +
+      adultSection;
   }
 
   /* ---------- 分类页 ---------- */
