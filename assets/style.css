@@ -204,3 +204,6 @@ a:hover { text-decoration: underline; }
   border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer;
 }
 .ver-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── 睡前连播开关（开态复用 .ver-btn.active）── */
+.auto-next { flex-shrink: 0; white-space: nowrap; }

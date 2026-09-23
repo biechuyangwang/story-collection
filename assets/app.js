@@ -7,6 +7,7 @@
   var searchBox = document.getElementById("search-box");
   var themeBtn = document.getElementById("theme-btn");
   var speaking = null;
+  var pendingAutoPlay = false; // 连播：跨页待自动播放标志（hash SPA 不刷新页面，模块级变量即可传递）
 
   /* ---------- 主题 ---------- */
   function applyTheme() {
@@ -114,6 +115,18 @@
   function storyLink(s) {
     return "#/s/" + s.id.split("/").map(encodeURIComponent).join("/");
   }
+  /* ---------- 睡前连播 ---------- */
+  function autoNextOn() {
+    return localStorage.getItem("autoplay-next") === "1";
+  }
+  // 从当前篇往后找同分类下一篇有配音的（跳过无配音的；到分类末尾返回 null，不循环）
+  function nextPlayable(s) {
+    var list = DATA.stories.filter(function (x) { return x.cat === s.cat; });
+    var i = list.indexOf(s);
+    for (var j = i + 1; j < list.length; j++)
+      if (list[j].audio || list[j].audio_m) return list[j];
+    return null;
+  }
   function renderCategory(cid) {
     var cat = DATA.categories.filter(function (c) { return c.id === cid; })[0];
     if (!cat) return renderHome();
@@ -165,16 +178,21 @@
     var audioBox = "";
     if (s.audio || s.audio_m) {
       var hasF = !!s.audio, hasM = !!s.audio_m;
+      // 沿用本会话上次选中的声线版本（连播跨页时继续用同一种声音）
+      var startM = hasM && sessionStorage.getItem("audio-ver") === "m";
       var tabs = "";
       if (hasF && hasM) {
         tabs = '<div class="ver-tabs">' +
-          '<button class="ver-btn active" data-src="' + encodeURI(s.audio) + '">♀ 女声版</button>' +
-          '<button class="ver-btn" data-src="' + encodeURI(s.audio_m) + '">♂ 男声版</button></div>';
+          '<button class="ver-btn' + (startM ? "" : " active") + '" data-src="' + encodeURI(s.audio) + '">♀ 女声版</button>' +
+          '<button class="ver-btn' + (startM ? " active" : "") + '" data-src="' + encodeURI(s.audio_m) + '">♂ 男声版</button></div>';
       }
-      var src = hasF ? s.audio : s.audio_m;
+      var src = startM ? s.audio_m : (hasF ? s.audio : s.audio_m);
       audioBox = '<div class="audio-box"><span class="audio-tag">🎧 有声朗读</span>' +
         tabs + '<audio controls preload="none" id="story-audio" src="' +
-        encodeURI(src) + '"></audio></div>';
+        encodeURI(src) + '"></audio>' +
+        '<button class="ver-btn auto-next' + (autoNextOn() ? " active" : "") +
+        '" id="auto-next-btn" title="睡前连播：本篇播完后，自动播放同分类下一篇（有配音的）">🌙 连播 ' +
+        (autoNextOn() ? "开" : "关") + "</button></div>";
     }
 
     app.innerHTML =
@@ -221,14 +239,46 @@
     app.querySelector("#fs-inc").onclick = function () { setFs(fs + 2); };
     app.querySelector("#fs-dec").onclick = function () { setFs(fs - 2); };
     // tts-btn 在正文 fetch 完成后绑定（需要 plain 全文）
-    app.querySelectorAll(".ver-btn").forEach(function (b) {
+    app.querySelectorAll(".ver-tabs .ver-btn").forEach(function (b) {
       b.onclick = function () {
-        app.querySelectorAll(".ver-btn").forEach(function (x) { x.classList.remove("active"); });
+        app.querySelectorAll(".ver-tabs .ver-btn").forEach(function (x) { x.classList.remove("active"); });
         b.classList.add("active");
         var player = app.querySelector("#story-audio");
         if (player) { player.pause(); player.src = b.dataset.src; }
+        // 记住声线偏好，连播跨页沿用（f=女声 m=男声）
+        sessionStorage.setItem("audio-ver", b.dataset.src === encodeURI(s.audio) ? "f" : "m");
       };
     });
+    /* ---------- 睡前连播 ---------- */
+    var autoBtn = app.querySelector("#auto-next-btn");
+    if (autoBtn) {
+      autoBtn.onclick = function () {
+        var on = !autoNextOn();
+        localStorage.setItem("autoplay-next", on ? "1" : "0");
+        this.classList.toggle("active", on);
+        this.textContent = on ? "🌙 连播 开" : "🌙 连播 关";
+      };
+    }
+    var player = app.querySelector("#story-audio");
+    if (player) {
+      player.addEventListener("ended", function () {
+        if (!autoNextOn()) return;
+        var nx = nextPlayable(s);
+        if (!nx) return; // 已是分类末尾：停止，不循环
+        pendingAutoPlay = true;
+        location.hash = storyLink(nx);
+      });
+      // 上一页播完自动跳过来：恢复声线版本后自动播放
+      if (pendingAutoPlay) {
+        pendingAutoPlay = false;
+        var pr = player.play();
+        if (pr && typeof pr.catch === "function") {
+          pr.catch(function (err) {
+            console.warn("[连播] 浏览器拦截了自动播放，本篇请手动点播放：", err);
+          });
+        }
+      }
+    }
     window.scrollTo(0, 0);
   }
 
