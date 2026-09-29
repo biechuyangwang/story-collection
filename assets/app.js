@@ -9,6 +9,22 @@
   var speaking = null;
   var pendingAutoPlay = false; // 连播：跨页待自动播放标志（hash SPA 不刷新页面，模块级变量即可传递）
 
+  /* ---------- jsDelivr CDN 双源加速 ---------- */
+  // 静态资源优先走 jsDelivr（国内外均有节点），失败自动回退 GitHub Pages 直连。
+  var CDN = "https://cdn.jsdelivr.net/gh/biechuyangwang/story-collection@main/";
+  function cdnFetchJSON(path) {
+    return fetch(CDN + path).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).catch(function () {
+      return fetch(path).then(function (r) { return r.json(); });
+    });
+  }
+  // 音频地址：CDN 优先 + 本地回退（<audio> 加载出错时换回相对路径）
+  function mediaSrc(rel) {
+    return { cdn: CDN + encodeURI(rel), local: encodeURI(rel) };
+  }
+
   /* ---------- 主题 ---------- */
   function applyTheme() {
     var saved = localStorage.getItem("theme");
@@ -62,7 +78,7 @@
   }
 
   /* ---------- 数据 ---------- */
-  fetch("docs/data.json").then(function (r) { return r.json(); }).then(function (d) {
+  cdnFetchJSON("docs/data.json").then(function (d) {
     DATA = d;
     document.getElementById("foot-meta").textContent = "共 " + d.total + " 篇 · 更新于 " + d.generatedAt;
     route();
@@ -190,16 +206,22 @@
       var hasF = !!s.audio, hasM = !!s.audio_m;
       // 沿用本会话上次选中的声线版本（连播跨页时继续用同一种声音）
       var startM = hasM && sessionStorage.getItem("audio-ver") === "m";
+      // 音频走 CDN 优先：data-src 为 CDN 地址，data-local 为回退地址（error 时切换）
+      function audioPair(rel) {
+        var m = mediaSrc(rel);
+        return { src: m.cdn, local: m.local };
+      }
       var tabs = "";
       if (hasF && hasM) {
+        var pF = audioPair(s.audio), pM = audioPair(s.audio_m);
         tabs = '<div class="ver-tabs">' +
-          '<button class="ver-btn' + (startM ? "" : " active") + '" data-src="' + encodeURI(s.audio) + '">♀ 女声版</button>' +
-          '<button class="ver-btn' + (startM ? " active" : "") + '" data-src="' + encodeURI(s.audio_m) + '">♂ 男声版</button></div>';
+          '<button class="ver-btn' + (startM ? "" : " active") + '" data-src="' + pF.src + '" data-local="' + pF.local + '">♀ 女声版</button>' +
+          '<button class="ver-btn' + (startM ? " active" : "") + '" data-src="' + pM.src + '" data-local="' + pM.local + '">♂ 男声版</button></div>';
       }
-      var src = startM ? s.audio_m : (hasF ? s.audio : s.audio_m);
+      var cur = startM ? audioPair(s.audio_m) : audioPair(hasF ? s.audio : s.audio_m);
       audioBox = '<div class="audio-box"><span class="audio-tag">🎧 有声朗读</span>' +
         tabs + '<audio controls preload="none" id="story-audio" src="' +
-        encodeURI(src) + '"></audio>' +
+        cur.src + '" data-local="' + cur.local + '"></audio>' +
         '<button class="ver-btn auto-next' + (autoNextOn() ? " active" : "") +
         '" id="auto-next-btn" title="睡前连播：本篇播完后，自动播放同分类下一篇（有配音的）">🌙 连播 ' +
         (autoNextOn() ? "开" : "关") + "</button></div>";
@@ -219,7 +241,7 @@
       "</div>";
 
     // 正文按需加载：列表页秒开，进文章页再取单篇 JSON（含正文/结尾/小启示）
-    fetch("docs/story/" + encodeURI(sid) + ".json")
+    cdnFetchJSON("docs/story/" + encodeURI(sid) + ".json")
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!app.querySelector(".content")) return; // 用户已切走
@@ -254,9 +276,14 @@
         app.querySelectorAll(".ver-tabs .ver-btn").forEach(function (x) { x.classList.remove("active"); });
         b.classList.add("active");
         var player = app.querySelector("#story-audio");
-        if (player) { player.pause(); player.src = b.dataset.src; }
+        if (player) {
+          player.pause();
+          player.dataset.local = b.dataset.local; // CDN 失败时的回退地址
+          delete player.dataset.cdnfell;
+          player.src = b.dataset.src;
+        }
         // 记住声线偏好，连播跨页沿用（f=女声 m=男声）
-        sessionStorage.setItem("audio-ver", b.dataset.src === encodeURI(s.audio) ? "f" : "m");
+        sessionStorage.setItem("audio-ver", b.dataset.local === encodeURI(s.audio) ? "f" : "m");
       };
     });
     /* ---------- 睡前连播 ---------- */
@@ -271,6 +298,12 @@
     }
     var player = app.querySelector("#story-audio");
     if (player) {
+      // CDN 音频加载失败时自动换回本站直连地址（每篇只回退一次）
+      player.addEventListener("error", function () {
+        if (player.dataset.cdnfell) return;
+        player.dataset.cdnfell = "1";
+        if (player.dataset.local) { player.src = player.dataset.local; player.load(); }
+      });
       player.addEventListener("ended", function () {
         if (!autoNextOn()) return;
         var nx = nextPlayable(s);
@@ -314,8 +347,7 @@
       note = '<p class="section-desc" style="color:var(--ink-soft)">正在加载全文索引…加载完成后会自动补全正文匹配的结果</p>';
       if (!searchIndexLoading) {
         searchIndexLoading = true;
-        fetch("docs/search.json")
-          .then(function (r) { return r.json(); })
+        cdnFetchJSON("docs/search.json")
           .then(function (idx) { searchIndex = idx; searchIndexLoading = false; renderSearch(q); })
           .catch(function () { searchIndexLoading = false; });
       }
